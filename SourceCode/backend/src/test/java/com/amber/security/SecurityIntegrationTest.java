@@ -1,13 +1,7 @@
 package com.amber.security;
 
+import com.amber.ApiTestBase;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -16,21 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** End-to-end checks of the security rules, with Firebase replaced by a mock. */
-@SpringBootTest
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-@TestPropertySource(properties = "app.admin-emails=admin@test.dev")
-class SecurityIntegrationTest {
-
-    @Autowired
-    private MockMvc mvc;
-
-    @MockitoBean
-    private FirebaseTokenVerifier verifier;
-
-    private void tokenFor(String token, String uid, String email, boolean verified) {
-        when(verifier.verify(token)).thenReturn(new VerifiedToken(uid, email, "Test " + uid, verified));
-    }
+class SecurityIntegrationTest extends ApiTestBase {
 
     @Test
     void catalogIsPublic() throws Exception {
