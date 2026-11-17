@@ -2,12 +2,15 @@ package com.amber.service;
 
 import com.amber.dto.CreateOrderRequest;
 import com.amber.dto.OrderDto;
+import com.amber.dto.admin.AdminOrderDto;
+import com.amber.entity.OrderStatus;
+import com.amber.exception.NotFoundException;
 import com.amber.entity.Order;
 import com.amber.entity.OrderItem;
 import com.amber.entity.Product;
 import com.amber.entity.ProductType;
 import com.amber.entity.User;
-import com.amber.exception.InvalidOrderException;
+import com.amber.exception.BusinessRuleException;
 import com.amber.exception.NoSlotsAvailableException;
 import com.amber.repository.OrderRepository;
 import com.amber.repository.ProductRepository;
@@ -55,21 +58,21 @@ public class OrderService {
 
         for (CreateOrderRequest.Item line : request.items()) {
             if (!seen.add(line.productId())) {
-                throw new InvalidOrderException("Each product can appear only once in an order");
+                throw new BusinessRuleException("Each product can appear only once in an order");
             }
             // Lock the row: stock is read and changed without another order slipping in between.
             Product product = productRepository.findByIdForUpdate(line.productId())
                     .filter(Product::isActive)
-                    .orElseThrow(() -> new InvalidOrderException("Product " + line.productId() + " is not available"));
+                    .orElseThrow(() -> new BusinessRuleException("Product " + line.productId() + " is not available"));
 
             if (product.getType() == ProductType.PACKAGE) {
                 packages++;
                 if (line.quantity() != 1) {
-                    throw new InvalidOrderException("A package can be ordered only once per order");
+                    throw new BusinessRuleException("A package can be ordered only once per order");
                 }
                 takeSlot(product);
             } else if (line.quantity() > 1 && !product.isAllowMultiple()) {
-                throw new InvalidOrderException(product.getName() + " can be added only once");
+                throw new BusinessRuleException(product.getName() + " can be added only once");
             }
 
             OrderItem item = new OrderItem();
@@ -82,7 +85,7 @@ public class OrderService {
         }
 
         if (packages != 1) {
-            throw new InvalidOrderException("An order must contain exactly one package");
+            throw new BusinessRuleException("An order must contain exactly one package");
         }
 
         order.setTotalPrice(total);
@@ -95,6 +98,43 @@ public class OrderService {
         return orderRepository.findAllByUserIdOrderByCreatedAtDescIdDesc(userId).stream()
                 .map(OrderDto::from)
                 .toList();
+    }
+
+    // ---------- admin ----------
+
+    @Transactional(readOnly = true)
+    public List<AdminOrderDto> listAllForAdmin() {
+        return orderRepository.findAllByOrderByCreatedAtDescIdDesc().stream().map(AdminOrderDto::from).toList();
+    }
+
+    /**
+     * Admin moves an order along: NEW -> IN_PROGRESS -> DONE, or cancels it.
+     * Cancelling gives the package slot back; a cancelled order cannot be reopened.
+     */
+    @Transactional
+    public AdminOrderDto changeStatus(Long orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findWithItemsById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order " + orderId + " not found"));
+        if (order.getStatus() == newStatus) {
+            return AdminOrderDto.from(order);
+        }
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new BusinessRuleException("A cancelled order cannot be reopened");
+        }
+        if (newStatus == OrderStatus.CANCELLED) {
+            returnSlot(order);
+        }
+        order.setStatus(newStatus);
+        return AdminOrderDto.from(order);
+    }
+
+    private void returnSlot(Order order) {
+        order.getItems().stream()
+                .filter(i -> i.getProduct().getType() == ProductType.PACKAGE)
+                .findFirst()
+                .flatMap(i -> productRepository.findByIdForUpdate(i.getProduct().getId()))
+                .filter(p -> p.getStock() != null)
+                .ifPresent(p -> p.setStock(p.getStock() + 1));
     }
 
     /** null stock = unlimited; otherwise one order takes one slot. */

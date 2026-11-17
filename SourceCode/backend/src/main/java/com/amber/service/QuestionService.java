@@ -1,6 +1,7 @@
 package com.amber.service;
 
 import com.amber.dto.QuestionDto;
+import com.amber.dto.admin.AdminQuestionDto;
 import com.amber.entity.Product;
 import com.amber.entity.Question;
 import com.amber.entity.Role;
@@ -12,6 +13,7 @@ import com.amber.security.AuthUser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 /** Questions about products: who can see them and who can ask. Answering is done by the admin. */
@@ -47,6 +49,26 @@ public class QuestionService {
         question.setUser(userRepository.getReferenceById(author.id()));
         question.setText(text.trim());
         return QuestionDto.from(questionRepository.saveAndFlush(question), author.id());
+    }
+
+    // ---------- admin ----------
+
+    @Transactional(readOnly = true)
+    public List<AdminQuestionDto> listForAdmin(boolean unansweredOnly) {
+        var questions = unansweredOnly
+                ? questionRepository.findUnanswered()
+                : questionRepository.findAllWithProductAndUser();
+        return questions.stream().map(AdminQuestionDto::from).toList();
+    }
+
+    /** Saves (or edits) the admin's answer; from now on everyone sees the question. */
+    @Transactional
+    public AdminQuestionDto answer(Long questionId, String answer) {
+        Question q = questionRepository.findWithProductAndUserById(questionId)
+                .orElseThrow(() -> new NotFoundException("Question " + questionId + " not found"));
+        q.setAnswer(answer.trim());
+        q.setAnsweredAt(Instant.now());
+        return AdminQuestionDto.from(q);
     }
 
     private Product activeProduct(Long productId) {

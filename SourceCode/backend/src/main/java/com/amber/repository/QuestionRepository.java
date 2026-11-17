@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
 
@@ -27,4 +28,23 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             order by q.createdAt desc, q.id desc
             """)
     List<Question> findAllForProduct(Long productId);
+
+    /** Admin inbox: oldest unanswered first, so nobody waits too long. */
+    @Query("""
+            select q from Question q join fetch q.user join fetch q.product
+            where q.answer is null
+            order by q.createdAt asc, q.id asc
+            """)
+    List<Question> findUnanswered();
+
+    @Query("""
+            select q from Question q join fetch q.user join fetch q.product
+            order by q.createdAt desc, q.id desc
+            """)
+    List<Question> findAllWithProductAndUser();
+
+    @Query("select q from Question q join fetch q.user join fetch q.product where q.id = :id")
+    Optional<Question> findWithProductAndUserById(Long id);
+
+    long countByAnswerIsNull();
 }
