@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -86,6 +87,14 @@ public class OrderService {
 
         order.setTotalPrice(total);
         return OrderDto.from(orderRepository.saveAndFlush(order));
+    }
+
+    /** Purchase history: only the signed-in user's own orders, newest first. */
+    @Transactional(readOnly = true)
+    public List<OrderDto> getMyOrders(Long userId) {
+        return orderRepository.findAllByUserIdOrderByCreatedAtDescIdDesc(userId).stream()
+                .map(OrderDto::from)
+                .toList();
     }
 
     /** null stock = unlimited; otherwise one order takes one slot. */
