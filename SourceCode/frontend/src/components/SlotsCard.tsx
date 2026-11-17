@@ -1,7 +1,6 @@
-import { Box, Divider, Paper, Skeleton, Typography } from '@mui/material'
+import { Box, Paper, Skeleton, Typography } from '@mui/material'
 import { currentMonth } from '../api/format'
 import type { Product } from '../api/types'
-import { content } from '../content'
 import { fonts, tokens } from '../theme/theme'
 import { Bead } from './Bead'
 
@@ -33,12 +32,6 @@ export function SlotsCard({ packages, loading }: { packages: Product[]; loading:
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, minHeight: 20 }}>
           {Array.from({ length: open }, (_, i) => <Bead key={i} size={18} />)}
         </Box>
-        {content.nowBuilding && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="body2" color="text.secondary">Now building: {content.nowBuilding}</Typography>
-          </>
-        )}
       </Paper>
       <BeadNote />
     </Box>
