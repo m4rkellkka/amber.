@@ -67,8 +67,7 @@ class SecurityIntegrationTest extends ApiTestBase {
     @Test
     void adminRoutesPassSecurityForAdmins() throws Exception {
         tokenFor("t-admin2", "uid-admin2", "admin@test.dev", true);
-        // No admin endpoints exist yet: getting past security means 404, not 401/403.
         mvc.perform(get("/api/admin/summary").header("Authorization", "Bearer t-admin2"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk());
     }
 }
