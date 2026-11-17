@@ -47,10 +47,13 @@ Settings (all optional, with local defaults) live in `src/main/resources/applica
 | `FIREBASE_CREDENTIALS_JSON` | empty | The same key as JSON text, for hosting |
 | `ADMIN_EMAILS` | empty | Comma-separated admin emails (or set in `local.properties`) |
 | `CORS_ORIGINS` | `http://localhost:5173` | Front-end address allowed to call the API |
+| `SEED_DEMO` | `false` | Load demo clients, orders and questions (for presentations only) |
 
 Without the Firebase key the public catalog still works, but sign-in is disabled.
 
 Tests use a separate database: `createdb -U postgres amber_test && ./mvnw test`.
+There are unit tests for the order rules (`OrderServiceTest`, Mockito, no database) and
+integration tests for every API area (`security`, `order`, `question`, `admin`), with Firebase mocked.
 
 ### 3. Front-end (port 5173)
 
