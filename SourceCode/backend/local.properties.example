@@ -1,2 +1,4 @@
 # Copy to local.properties (gitignored) and fill in
 app.admin-emails=you@example.com
+# Uncomment to load demo clients, orders and questions (for presentations only)
+# app.seed-demo=true

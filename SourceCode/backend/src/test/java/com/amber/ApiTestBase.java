@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@TestPropertySource(properties = "app.admin-emails=admin@test.dev")
+@TestPropertySource(properties = {"app.admin-emails=admin@test.dev", "app.seed-demo=false"})
 public abstract class ApiTestBase {
 
     @Autowired
