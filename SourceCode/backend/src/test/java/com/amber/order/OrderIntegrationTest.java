@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -134,6 +135,35 @@ class OrderIntegrationTest extends ApiTestBase {
                 """)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.items").value("Choose a package"));
+    }
+
+    @Test
+    void myOrdersShowsOnlyOwnOrdersNewestFirst() throws Exception {
+        Product pkg = newPackage(5, true);
+        String body = "{\"items\": [{\"productId\": %d, \"quantity\": 1}], \"brief\": \"%s\"}";
+        order(body.formatted(pkg.getId(), "first")).andExpect(status().isCreated());
+        order(body.formatted(pkg.getId(), "second")).andExpect(status().isCreated());
+
+        String other = tokenFor("t-other", "uid-other", "other@test.dev", true);
+        mvc.perform(post("/api/orders").header("Authorization", other).contentType(MediaType.APPLICATION_JSON)
+                        .content(body.formatted(pkg.getId(), "not yours")))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/api/orders/my").header("Authorization", auth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.brief == 'not yours')]").isEmpty())
+                .andExpect(jsonPath("$[0].brief").value("second"))
+                .andExpect(jsonPath("$[0].items[0].productName").value(pkg.getName()));
+
+        mvc.perform(get("/api/orders/my").header("Authorization", other))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].brief").value("not yours"));
+    }
+
+    @Test
+    void myOrdersNeedsSignIn() throws Exception {
+        mvc.perform(get("/api/orders/my")).andExpect(status().isUnauthorized());
     }
 
     @Test
