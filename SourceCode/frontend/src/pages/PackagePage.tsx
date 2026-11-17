@@ -10,6 +10,7 @@ import { Bead } from '../components/Bead'
 import { BeadRow } from '../components/BeadRow'
 import { QuestionsSection } from '../components/QuestionsSection'
 import { fonts, tokens } from '../theme/theme'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { NotFoundPage } from './NotFoundPage'
 
 interface LoadError {
@@ -26,6 +27,7 @@ export function PackagePage() {
   const current = loaded?.slug === slug ? loaded : null
   const product = current?.product ?? null
   const error = current?.error ?? null
+  usePageTitle(product?.name ?? 'Package')
 
   useEffect(() => {
     let cancelled = false

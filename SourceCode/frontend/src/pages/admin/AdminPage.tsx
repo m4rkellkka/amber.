@@ -8,6 +8,7 @@ import { OrdersTab } from './OrdersTab'
 import { OverviewTab } from './OverviewTab'
 import { QuestionsTab } from './QuestionsTab'
 import { StockTab } from './StockTab'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const tabs = [
   { id: 'overview', label: 'Overview' },
@@ -50,5 +51,6 @@ function AdminPanel() {
 
 /** /admin — only for ADMIN; every request is checked again on the server. */
 export function AdminPage() {
+  usePageTitle('Admin')
   return <RequireAdmin><AdminPanel /></RequireAdmin>
 }

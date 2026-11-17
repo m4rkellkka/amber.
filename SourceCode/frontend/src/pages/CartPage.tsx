@@ -12,6 +12,7 @@ import { useAuth } from '../auth/AuthContext'
 import { useCart } from '../cart/CartContext'
 import { BeadRow } from '../components/BeadRow'
 import { useCatalog } from '../hooks/useCatalog'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { fonts, tokens } from '../theme/theme'
 
 const BRIEF_LIMIT = 4000
@@ -56,6 +57,7 @@ export function CartPage() {
   const navigate = useNavigate()
   const { packages, addons, loading, error: loadError, reload } = useCatalog()
   const [submitting, setSubmitting] = useState(false)
+  usePageTitle('Your order')
   const [error, setError] = useState<string | null>(null)
 
   const pkg = packages.find((p) => p.id === cart.packageId) ?? null

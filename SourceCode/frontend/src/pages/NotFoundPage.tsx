@@ -1,7 +1,9 @@
 import { Link as RouterLink } from 'react-router'
 import { Box, Button, Typography } from '@mui/material'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export function NotFoundPage() {
+  usePageTitle('Page not found')
   return (
     <Box sx={{ py: 14, textAlign: 'center', px: 2 }}>
       <Typography variant="h1" gutterBottom>Page not found</Typography>

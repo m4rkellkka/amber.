@@ -7,6 +7,7 @@ import { fetchMyOrders } from '../api/orders'
 import type { Order } from '../api/types'
 import { RequireAuth } from '../auth/RequireAuth'
 import { OrderStatus } from '../components/OrderStatus'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { fonts, tokens } from '../theme/theme'
 
 function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
@@ -111,5 +112,6 @@ function OrdersList() {
 
 /** Purchase history of the signed-in user. */
 export function OrdersPage() {
+  usePageTitle('My orders')
   return <RequireAuth><OrdersList /></RequireAuth>
 }

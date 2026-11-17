@@ -12,7 +12,7 @@ export function ScrollToHash() {
     let tries = 0
     const id = window.setInterval(() => {
       const el = document.getElementById(decodeURIComponent(hash.slice(1)))
-      if (el || ++tries > 20) {
+      if (el || ++tries > 60) {
         window.clearInterval(id)
         el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }

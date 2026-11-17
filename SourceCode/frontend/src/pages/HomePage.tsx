@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Box, Button, Container, Link, Typography } from '@mui/material'
+import { AskDialog } from '../components/AskDialog'
 import { AddonChips } from '../components/AddonChips'
 import { PackagesTable } from '../components/PackagesTable'
 import { RecentWork } from '../components/RecentWork'
 import { SlotsCard } from '../components/SlotsCard'
 import { useCatalog } from '../hooks/useCatalog'
+import { usePageTitle } from '../hooks/usePageTitle'
 import { tokens } from '../theme/theme'
 
 /** Hand-drawn amber underline under a phrase, as in the design. */
@@ -21,6 +24,8 @@ function Underlined({ children }: { children: string }) {
 
 export function HomePage() {
   const { packages, addons, loading, error, reload } = useCatalog()
+  const [askOpen, setAskOpen] = useState(false)
+  usePageTitle(null)
 
   return (
     <Container maxWidth="lg" sx={{ pt: { xs: 6, md: 9 } }}>
@@ -38,7 +43,9 @@ export function HomePage() {
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
             <Button variant="contained" size="large" href="#packages">Choose a package</Button>
-            <Link href="#packages" underline="always" sx={{ color: tokens.link, fontWeight: 500 }}>
+            <Link component="button" type="button" underline="always" onClick={() => setAskOpen(true)}
+                  disabled={packages.length === 0}
+                  sx={{ color: tokens.link, fontWeight: 500, fontSize: 16 }}>
               Ask me something first
             </Link>
           </Box>
@@ -51,6 +58,7 @@ export function HomePage() {
         <PackagesTable packages={packages} loading={loading} error={error} onRetry={reload} />
       </Box>
       <Box sx={{ mt: 6 }}><AddonChips addons={addons} /></Box>
+      <AskDialog open={askOpen} onClose={() => setAskOpen(false)} packages={packages} />
     </Container>
   )
 }
