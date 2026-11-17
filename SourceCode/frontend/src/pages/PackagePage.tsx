@@ -6,8 +6,8 @@ import { errorMessage } from '../api/client'
 import { formatUsd } from '../api/format'
 import type { Product } from '../api/types'
 import { useCart } from '../cart/CartContext'
-import { Bead } from '../components/Bead'
 import { BeadRow } from '../components/BeadRow'
+import { LeafBullet, LeafSprig } from '../components/nature/decorations'
 import { QuestionsSection } from '../components/QuestionsSection'
 import { fonts, tokens } from '../theme/theme'
 import { usePageTitle } from '../hooks/usePageTitle'
@@ -71,14 +71,16 @@ export function PackagePage() {
           <Box component="ul" sx={{ listStyle: 'none', p: 0, m: 0, display: 'grid', gap: 1.5 }}>
             {(product?.features ?? Array.from({ length: 4 }, () => null)).map((f, i) => (
               <Box component="li" key={i} sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-                <Bead size={10} />
+                <LeafBullet size={15} />
                 <Typography>{f ?? <Skeleton width={260} />}</Typography>
               </Box>
             ))}
           </Box>
         </Box>
 
-        <Paper variant="outlined" sx={{ p: 3, borderRadius: 3, bgcolor: tokens.cream, position: { md: 'sticky' }, top: { md: 24 } }}>
+        <Box sx={{ position: { xs: 'relative', md: 'sticky' }, top: { md: 24 } }}>
+        <LeafSprig size={70} sx={{ position: 'absolute', top: -40, left: { xs: -4, md: -26 }, transform: 'scaleX(-1) rotate(6deg)' }} />
+        <Paper variant="outlined" sx={{ position: 'relative', p: 3, borderRadius: 3, bgcolor: tokens.cream }}>
           <Typography sx={{ fontFamily: fonts.display, fontWeight: 700, fontSize: 40, lineHeight: 1 }}>
             {product ? formatUsd(product.price) : <Skeleton width={120} />}
           </Typography>
@@ -93,6 +95,7 @@ export function PackagePage() {
             You can add extras and describe your project on the next step.
           </Typography>
         </Paper>
+        </Box>
       </Box>
 
       {product && (

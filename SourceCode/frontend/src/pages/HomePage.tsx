@@ -5,6 +5,7 @@ import { AddonChips } from '../components/AddonChips'
 import { PackagesTable } from '../components/PackagesTable'
 import { RecentWork } from '../components/RecentWork'
 import { SlotsCard } from '../components/SlotsCard'
+import { VineDivider } from '../components/nature/decorations'
 import { useCatalog } from '../hooks/useCatalog'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { tokens } from '../theme/theme'
@@ -12,7 +13,7 @@ import { tokens } from '../theme/theme'
 /** Hand-drawn amber underline under a phrase, as in the design. */
 function Underlined({ children }: { children: string }) {
   return (
-    <Box component="span" sx={{ position: 'relative', whiteSpace: 'nowrap' }}>
+    <Box component="span" sx={{ position: 'relative', whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>
       {children}
       <Box component="svg" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"
            sx={{ position: 'absolute', left: 0, bottom: '-0.12em', width: '100%', height: '0.28em', overflow: 'visible' }}>
@@ -54,7 +55,8 @@ export function HomePage() {
       </Box>
 
       <Box sx={{ mt: { xs: 9, md: 12 } }}><RecentWork /></Box>
-      <Box sx={{ mt: { xs: 9, md: 12 } }}>
+      <VineDivider sx={{ my: { xs: 6, md: 9 } }} />
+      <Box>
         <PackagesTable packages={packages} loading={loading} error={error} onRetry={reload} />
       </Box>
       <Box sx={{ mt: 6 }}><AddonChips addons={addons} /></Box>

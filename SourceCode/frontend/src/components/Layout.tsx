@@ -8,7 +8,7 @@ import { ScrollToHash } from './ScrollToHash'
 /** Frame for every page: header, page content, footer, and the sign-in dialog. */
 export function Layout() {
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'clip' }}>
       <ScrollToHash />
       <Box component="a" href="#main"
            sx={{

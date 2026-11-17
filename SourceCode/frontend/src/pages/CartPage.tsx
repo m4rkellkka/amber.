@@ -11,6 +11,7 @@ import type { Product } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { useCart } from '../cart/CartContext'
 import { BeadRow } from '../components/BeadRow'
+import { LeafSprig } from '../components/nature/decorations'
 import { useCatalog } from '../hooks/useCatalog'
 import { usePageTitle } from '../hooks/usePageTitle'
 import { fonts, tokens } from '../theme/theme'
@@ -68,6 +69,7 @@ export function CartPage() {
   if (!loading && !pkg) {
     return (
       <Container maxWidth="sm" sx={{ py: 12, textAlign: 'center' }}>
+        <LeafSprig size={64} sx={{ mx: 'auto', mb: 1 }} />
         <Typography variant="h2" gutterBottom>Pick a package first</Typography>
         <Typography color="text.secondary" sx={{ mb: 3 }}>
           Your order starts with one package. Then you can add extras and describe your project.

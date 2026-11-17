@@ -7,15 +7,16 @@ import { fetchMyOrders } from '../api/orders'
 import type { Order } from '../api/types'
 import { RequireAuth } from '../auth/RequireAuth'
 import { OrderStatus } from '../components/OrderStatus'
+import { LeafSprig } from '../components/nature/decorations'
 import { usePageTitle } from '../hooks/usePageTitle'
-import { fonts, tokens } from '../theme/theme'
+import { cardShadow, fonts, tokens } from '../theme/theme'
 
 function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
   return (
     <Paper variant="outlined" sx={{
       p: { xs: 2.5, md: 3 }, borderRadius: 3,
       borderColor: highlight ? tokens.amber : undefined,
-      boxShadow: highlight ? `0 0 0 3px ${tokens.cream}` : 'none',
+      boxShadow: highlight ? `0 0 0 4px rgba(239, 138, 30, 0.16), ${cardShadow}` : undefined,
     }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2, flexWrap: 'wrap' }}>
         <Box>
@@ -40,7 +41,7 @@ function OrderCard({ order, highlight }: { order: Order; highlight: boolean }) {
 
       {order.brief && (
         <Typography variant="body2" color="text.secondary"
-                    sx={{ mt: 2, p: 1.5, bgcolor: tokens.cream, borderRadius: 2, whiteSpace: 'pre-line' }}>
+                    sx={{ mt: 2, p: 1.5, bgcolor: tokens.sand, borderRadius: 2, whiteSpace: 'pre-line' }}>
           {order.brief}
         </Typography>
       )}
@@ -93,6 +94,7 @@ function OrdersList() {
 
       {orders?.length === 0 && (
         <Paper variant="outlined" sx={{ p: 5, borderRadius: 3, textAlign: 'center', bgcolor: tokens.cream }}>
+          <LeafSprig size={60} sx={{ mx: 'auto', mb: 1 }} />
           <Typography variant="h3" component="p" gutterBottom>No orders yet</Typography>
           <Typography color="text.secondary" sx={{ mb: 3 }}>
             Pick a package, add what you need, and your order will show up here.
