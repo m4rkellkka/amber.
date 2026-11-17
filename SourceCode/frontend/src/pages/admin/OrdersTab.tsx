@@ -40,7 +40,7 @@ function OrderRow({ row, onStatus }: { row: AdminOrder; onStatus: (row: AdminOrd
         </Box>
       </Box>
       {order.brief && (
-        <Typography variant="body2" sx={{ mt: 1.5, p: 1.5, bgcolor: tokens.cream, borderRadius: 2, whiteSpace: 'pre-line' }}>
+        <Typography variant="body2" sx={{ mt: 1.5, p: 1.5, bgcolor: tokens.sand, borderRadius: 2, whiteSpace: 'pre-line' }}>
           {order.brief}
         </Typography>
       )}

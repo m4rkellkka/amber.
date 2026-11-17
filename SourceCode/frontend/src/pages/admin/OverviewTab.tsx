@@ -70,7 +70,7 @@ export function OverviewTab({ onOpenTab }: { onOpenTab: (tab: string) => void })
               <Box key={s} sx={{ display: 'grid', gridTemplateColumns: '110px 1fr 40px', alignItems: 'center', gap: 2 }}>
                 <Typography variant="body2">{statusLabel[s]}</Typography>
                 <Box sx={{ height: 10, borderRadius: 5, bgcolor: tokens.sand, overflow: 'hidden' }}>
-                  <Box sx={{ height: '100%', width: `${share}%`, bgcolor: s === 'CANCELLED' ? '#CBBBA8' : tokens.amber, borderRadius: 5 }} />
+                  <Box sx={{ height: '100%', width: `${share}%`, bgcolor: s === 'CANCELLED' ? tokens.stone : tokens.amber, borderRadius: 5 }} />
                 </Box>
                 <Typography variant="body2" sx={{ fontWeight: 600, textAlign: 'right' }}>{count}</Typography>
               </Box>
