@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router'
 import { Box, Container, Typography } from '@mui/material'
 import { fonts, tokens } from '../theme/theme'
 import { FooterClump } from './nature/decorations'
@@ -13,12 +14,18 @@ function Wave() {
 }
 
 export function Footer() {
+  // The admin panel is a work tool: it keeps the colors but gets no plants.
+  const plants = !useLocation().pathname.startsWith('/admin')
   return (
-    <Box component="footer" sx={{ position: 'relative', mt: { xs: 24, md: 27 }, bgcolor: tokens.forest, color: tokens.paper }}>
+    <Box component="footer" sx={{ position: 'relative', mt: plants ? { xs: 24, md: 27 } : 10, bgcolor: tokens.forest, color: tokens.paper }}>
       <Wave />
-      <FooterClump height={150} sx={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: { xs: '4%', md: '7%' } }} />
-      <FooterClump height={108} flip
-                   sx={{ position: 'absolute', bottom: 'calc(100% + 10px)', right: '9%', display: { xs: 'none', sm: 'block' } }} />
+      {plants && (
+        <>
+          <FooterClump height={150} sx={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: { xs: '4%', md: '7%' } }} />
+          <FooterClump height={108} flip
+                       sx={{ position: 'absolute', bottom: 'calc(100% + 10px)', right: '9%', display: { xs: 'none', sm: 'block' } }} />
+        </>
+      )}
       <Container maxWidth="lg">
         <Box sx={{
           py: { xs: 4, md: 5 },
