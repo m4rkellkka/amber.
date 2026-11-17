@@ -14,7 +14,8 @@ export function ScrollToHash() {
       const el = document.getElementById(decodeURIComponent(hash.slice(1)))
       if (el || ++tries > 60) {
         window.clearInterval(id)
-        el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        el?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' })
       }
     }, 50)
     return () => window.clearInterval(id)
