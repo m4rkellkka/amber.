@@ -4,6 +4,7 @@ import { currentMonth, formatUsd } from '../api/format'
 import type { Product } from '../api/types'
 import { fonts, tokens } from '../theme/theme'
 import { BeadRow } from './BeadRow'
+import { Eyebrow } from './RecentWork'
 
 interface Props {
   packages: Product[]
@@ -18,8 +19,11 @@ const columns = { md: '1.4fr 2.2fr 0.7fr 1.1fr 0.6fr' }
 export function PackagesTable({ packages, loading, error, onRetry }: Props) {
   return (
     <Box component="section" id="packages" sx={{ scrollMarginTop: 24 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-        <Typography variant="h2">Packages</Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+        <Box>
+          <Eyebrow>what I charge</Eyebrow>
+          <Typography variant="h2">Packages</Typography>
+        </Box>
         <Typography variant="body2" color="text.secondary">USD · open slots for {currentMonth()}</Typography>
       </Box>
 
@@ -40,7 +44,7 @@ export function PackagesTable({ packages, loading, error, onRetry }: Props) {
                  gridTemplateColumns: { xs: '1fr auto', ...columns },
                  py: 2.5, px: { md: 1 }, borderBottom: 1, borderColor: 'divider',
                  color: 'inherit', textDecoration: 'none', transition: 'background-color .15s',
-                 '&:hover': { bgcolor: tokens.cream },
+                 '&:hover': { bgcolor: 'rgba(230, 235, 216, 0.6)' },
                  '&:focus-visible': { outline: `2px solid ${tokens.amber}`, outlineOffset: 2 },
                }}>
             <Typography sx={{ fontFamily: fonts.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' }}>
@@ -51,10 +55,10 @@ export function PackagesTable({ packages, loading, error, onRetry }: Props) {
               {p.shortDescription}
             </Typography>
             <Typography variant="body2" color="text.secondary"
-                        sx={{ display: { xs: 'none', md: 'block' } }}>
+                        sx={{ gridColumn: { xs: 2, md: 'auto' }, gridRow: { xs: 3, md: 'auto' }, textAlign: { xs: 'right', md: 'left' } }}>
               {p.deliveryDays} days
             </Typography>
-            <Box sx={{ gridColumn: { xs: '1 / -1', md: 'auto' }, gridRow: { xs: 3, md: 'auto' }, mt: { xs: 0.5, md: 0 } }}>
+            <Box sx={{ gridColumn: { xs: 1, md: 'auto' }, gridRow: { xs: 3, md: 'auto' }, mt: { xs: 0.5, md: 0 } }}>
               <BeadRow stock={p.stock} />
             </Box>
             <Typography sx={{
