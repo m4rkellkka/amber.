@@ -1,0 +1,46 @@
+import { Box, Divider, Paper, Skeleton, Typography } from '@mui/material'
+import { currentMonth } from '../api/format'
+import type { Product } from '../api/types'
+import { content } from '../content'
+import { fonts, tokens } from '../theme/theme'
+import { Bead } from './Bead'
+
+/** Hand-drawn arrow + note under the card, as in the design. */
+function BeadNote() {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mt: 2, ml: 1.5, color: tokens.link }}>
+      <Box component="svg" viewBox="0 0 40 28" aria-hidden="true" sx={{ width: 34, flexShrink: 0, mt: 0.25 }}>
+        <path d="M36 22 C 26 24, 12 20, 6 6 M6 6 L 4 14 M6 6 L 13 9" fill="none" stroke="currentColor"
+              strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </Box>
+      <Typography sx={{ fontFamily: fonts.hand, fontSize: 20, lineHeight: 1.1, transform: 'rotate(-3deg)', mt: 0.5 }}>
+        one bead = one project<br />I can take this month
+      </Typography>
+    </Box>
+  )
+}
+
+/** "December · 12 slots open" with one bead per open slot across all packages. */
+export function SlotsCard({ packages, loading }: { packages: Product[]; loading: boolean }) {
+  const open = packages.reduce((sum, p) => sum + Math.max(p.stock ?? 0, 0), 0)
+  return (
+    <Box>
+      <Paper variant="outlined" sx={{ p: 2.5, bgcolor: tokens.cream, borderRadius: 3 }}>
+        <Typography variant="body2" color="text.secondary">{currentMonth()}</Typography>
+        <Typography variant="h3" component="p" sx={{ mt: 0.5, mb: 1.5 }}>
+          {loading ? <Skeleton width={140} /> : open === 0 ? 'Fully booked' : `${open} ${open === 1 ? 'slot' : 'slots'} open`}
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, minHeight: 20 }}>
+          {Array.from({ length: open }, (_, i) => <Bead key={i} size={18} />)}
+        </Box>
+        {content.nowBuilding && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="body2" color="text.secondary">Now building: {content.nowBuilding}</Typography>
+          </>
+        )}
+      </Paper>
+      <BeadNote />
+    </Box>
+  )
+}
