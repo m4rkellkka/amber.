@@ -25,9 +25,10 @@ public record CreateOrderRequest(
             @NotNull(message = "Product is required")
             Long productId,
 
+            @NotNull(message = "Quantity is required")
             @Min(value = 1, message = "Quantity must be at least 1")
             @Max(value = 20, message = "Quantity must be at most 20")
-            int quantity
+            Integer quantity
     ) {
     }
 }
