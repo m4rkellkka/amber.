@@ -56,3 +56,15 @@ export interface CreateOrderRequest {
   items: { productId: number; quantity: number }[]
   brief: string
 }
+
+export interface Question {
+  id: number
+  text: string
+  /** First name only. */
+  authorName: string
+  createdAt: string
+  answer: string | null
+  answeredAt: string | null
+  /** True when the viewer asked it. */
+  mine: boolean
+}

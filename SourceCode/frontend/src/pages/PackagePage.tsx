@@ -8,6 +8,7 @@ import type { Product } from '../api/types'
 import { useCart } from '../cart/CartContext'
 import { Bead } from '../components/Bead'
 import { BeadRow } from '../components/BeadRow'
+import { QuestionsSection } from '../components/QuestionsSection'
 import { fonts, tokens } from '../theme/theme'
 import { NotFoundPage } from './NotFoundPage'
 
@@ -91,6 +92,12 @@ export function PackagePage() {
           </Typography>
         </Paper>
       </Box>
+
+      {product && (
+        <Box sx={{ mt: { xs: 8, md: 10 }, maxWidth: 760 }}>
+          <QuestionsSection productId={product.id} />
+        </Box>
+      )}
     </Container>
   )
 }
