@@ -1,21 +1,70 @@
 # amber
 
-Personal web studio: clients pick a service package (website, chatbot, dashboard), add extras,
-place an order and track it. Built for the CEN301 Web Design and Programming course project.
+**An online shop for a one-person web studio in Istanbul.** Clients pick a service package — a landing page,
+a business website, an AI chatbot, an analytics dashboard or a starter kit for hotels and cafés — add extras,
+describe the project and follow the order from brief to launch.
 
-## Stack
+The twist: for a solo developer the real limit is time, so **stock is the number of projects I can still take
+this month**. One amber bead on the page = one open slot.
 
-- Front-end: React, TypeScript, Vite, Material UI
-- Back-end: Java 21, Spring Boot, Spring Security, PostgreSQL
-- Auth: Firebase Authentication (ID tokens verified on the back-end with the Firebase Admin SDK)
+![amber home page](docs/images/home.jpg)
 
-## Structure
+<sub>React · TypeScript · Material UI · Java 21 · Spring Boot 4 · PostgreSQL · Firebase Auth — built for the CEN301 Web Design and Programming course project.</sub>
+
+---
+
+## What it does
+
+| For clients | For the studio (admin) |
+|---|---|
+| Browse packages with live open slots | **Overview**: orders by status, revenue, open slots, questions waiting |
+| Read what each package includes, ask a question | **Add product**: packages and add-ons, with server-side validation |
+| Build an order: one package + add-ons, quantities, a brief | **Stock**: change monthly slots, hide products from the catalog |
+| Sign in with email or Google | **Questions**: answer them; answers become public |
+| **My orders**: history with date, items, total and status | **Orders**: move along *Received → In progress → Launched*, or cancel (the slot comes back) |
+
+| | |
+|---|---|
+| ![Package page with questions](docs/images/package-questions.jpg) | ![Cart](docs/images/cart.jpg) |
+| **Package page and Q&A** — answered questions are public | **Your order** — one package, add-ons, brief, live total |
+| ![My orders](docs/images/my-orders.jpg) | ![Admin overview](docs/images/admin-overview.jpg) |
+| **My orders** — purchase history | **Admin overview** |
+
+## How it is built
+
+```
+React app (Vite, MUI)  ──  Firebase ID token in every request
+        │  HTTP + JSON
+Spring Boot
+  security    FirebaseTokenFilter → user + role (USER / ADMIN) in the SecurityContext; SecurityConfig URL rules
+  controller  Product · Order · Question · Admin · Me — HTTP mapping and @Valid input
+  service     business rules and transactions (OrderService, ProductService, QuestionService, …)
+  repository  Spring Data JPA, JPQL visibility rules, entity graphs, a row lock for slots
+  entity/dto  User, Product, Order, OrderItem, Question · records sent to the browser
+  exception   one JSON error shape (RFC 9457) for 400 / 401 / 403 / 404 / 409
+        │  JDBC
+PostgreSQL
+```
+
+A few decisions worth a look:
+
+- **Prices can't be faked.** The browser sends only product ids and quantities; `OrderService` takes prices from the
+  database and copies name + price into each order line, so later catalog changes never rewrite history.
+- **The last slot is safe.** Placing an order is one transaction that locks the package row
+  (`SELECT … FOR UPDATE`), so two clients can't both take the last slot. Sold out → `409`.
+- **Admin needs a verified email.** The role lives in the database; an account becomes `ADMIN` only if its email is in
+  `ADMIN_EMAILS` *and* Firebase confirms the person owns it. `/api/admin/**` is checked in `SecurityConfig` and again
+  with `@PreAuthorize`.
+- **Q&A respects privacy.** Unanswered questions are visible only to their author and the admin; only first names are shown.
+
+## Project layout
 
 ```
 SourceCode/
-  frontend/   React app
-  backend/    Spring Boot app (application.properties included)
+  frontend/   React app — src/{api, auth, cart, components, hooks, pages, theme}
+  backend/    Spring Boot app — application.properties included
   database/   PostgreSQL dump
+docs/images/  screenshots for this page
 ```
 
 ## Running locally
@@ -51,10 +100,6 @@ Settings (all optional, with local defaults) live in `src/main/resources/applica
 
 Without the Firebase key the public catalog still works, but sign-in is disabled.
 
-Tests use a separate database: `createdb -U postgres amber_test && ./mvnw test`.
-There are unit tests for the order rules (`OrderServiceTest`, Mockito, no database) and
-integration tests for every API area (`security`, `order`, `question`, `admin`), with Firebase mocked.
-
 ### 3. Front-end (port 5173)
 
 ```bash
@@ -65,9 +110,21 @@ npm run dev
 
 Open http://localhost:5173. In development, requests to `/api` are forwarded to the back-end on port 8080.
 
-## Security model
+## Tests
 
-- The browser signs in with Firebase Authentication (email + password or Google) and sends the Firebase ID token with every API request.
-- `FirebaseTokenFilter` verifies the token with the Firebase Admin SDK and creates or updates the user in the `users` table.
-- Roles (`USER` / `ADMIN`) live in the database. A user becomes `ADMIN` only if their email is in `ADMIN_EMAILS` **and** Firebase has verified that they own it.
-- `/api/admin/**` requires `ADMIN`; the catalog is public; everything else requires sign-in.
+```bash
+createdb -U postgres amber_test
+cd SourceCode/backend && ./mvnw test
+```
+
+44 tests: unit tests for the order rules (`OrderServiceTest`, Mockito, no database) and integration tests for every
+API area (`security`, `order`, `question`, `admin`) on a separate database, with Firebase mocked.
+
+## Releases
+
+Each finished phase is a tagged release: `v0.1.0` back-end foundation · `v0.2.0` sign-in · `v0.3.0` catalog and
+checkout · `v0.4.0` order history and Q&A · `v0.5.0` admin panel · `v0.6.0` polish and demo data.
+
+---
+
+Made by Mikhail Savushkin, Istanbul.
