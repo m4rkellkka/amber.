@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link as RouterLink, useNavigate } from 'react-router'
 import { Avatar, Box, Button, Container, Divider, Link, ListItemText, Menu, MenuItem, Stack, Typography } from '@mui/material'
 import { useAuth } from '../auth/AuthContext'
+import { useCart } from '../cart/CartContext'
 import { fonts } from '../theme/theme'
 import { Bead } from './Bead'
 import { IstanbulClock } from './IstanbulClock'
@@ -70,6 +71,7 @@ function GuestMenu() {
 
 export function Header() {
   const { user, loading } = useAuth()
+  const { packageId } = useCart()
   return (
     <Box component="header" sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: 'background.default' }}>
       <Container maxWidth="lg" sx={{ height: 72, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -92,6 +94,13 @@ export function Header() {
             </Link>
           ))}
         </Stack>
+
+        {packageId !== null && (
+          <Button component={RouterLink} to="/cart" variant="outlined" color="secondary" size="small"
+                  startIcon={<Bead size={10} />}>
+            Your order
+          </Button>
+        )}
 
         <Box sx={{ minWidth: 90, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
           {loading ? null : user ? <AccountMenu /> : <GuestMenu />}
