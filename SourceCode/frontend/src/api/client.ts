@@ -26,3 +26,9 @@ export function errorMessage(error: unknown, fallback = 'Something went wrong. P
   }
   return fallback
 }
+
+/** Per-field messages from a 400 validation error, e.g. { name: 'Name is required' }. */
+export function fieldErrors(error: unknown): Record<string, string> {
+  if (isAxiosError<Problem>(error)) return error.response?.data?.fieldErrors ?? {}
+  return {}
+}

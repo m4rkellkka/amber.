@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { Layout } from './components/Layout'
-import { AdminPage } from './pages/AdminPage'
+import { AdminPage } from './pages/admin/AdminPage'
 import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { OrdersPage } from './pages/OrdersPage'
