@@ -12,17 +12,19 @@ export const tokens = {
   sand: '#F3EBDC',
   line: '#E7DCCB',
   stone: '#CBBBA8',
-  paper: '#FBF6EC',
+  paper: '#F7F0E3',
   moss: '#4F6B3A',
   leaf: '#6F8F4E',
   sage: '#A9B98F',
   sageWash: '#E6EBD8',
   forest: '#26331F',
+  terracotta: '#A9532F',
+  mustardWash: '#F1D9A0',
 } as const
 
 export const fonts = {
-  display: '"Bricolage Grotesque", "Geist", system-ui, sans-serif',
-  body: '"Geist", system-ui, -apple-system, "Segoe UI", sans-serif',
+  display: '"Fraunces", Georgia, "Times New Roman", serif',
+  body: '"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
   hand: '"Caveat", "Comic Sans MS", cursive',
 } as const
 
@@ -34,14 +36,17 @@ const grain = `url("data:image/svg+xml,${encodeURIComponent(
   "<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'>" +
   "<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/>" +
   "<feColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0 0.12 0 0 0 0.9 0'/></filter>" +
-  "<rect width='100%' height='100%' filter='url(#n)' opacity='0.09'/></svg>",
+  "<rect width='100%' height='100%' filter='url(#n)' opacity='0.12'/></svg>",
 )}")`
 
+/** Fraunces with soft, rounded terminals: warm, bookish headings instead of a UI grotesk. */
+export const softSerif = { fontFamily: fonts.display, fontVariationSettings: '"SOFT" 60, "WONK" 0' } as const
+
 const headings = {
-  fontFamily: fonts.display,
-  fontWeight: 600,
-  letterSpacing: '-0.015em',
-  lineHeight: 1.12,
+  ...softSerif,
+  fontWeight: 560,
+  letterSpacing: '-0.012em',
+  lineHeight: 1.1,
 }
 
 export const theme = createTheme({
@@ -72,6 +77,17 @@ export const theme = createTheme({
           backgroundImage: grain,
         },
         '::selection': { backgroundColor: tokens.sageWash },
+        // Single leaves of the vines sway on their own (see components/nature/Vine.tsx).
+        '@keyframes amber-leaf-sway': {
+          from: { transform: 'rotate(-5deg)' },
+          to: { transform: 'rotate(5deg)' },
+        },
+        '@media (prefers-reduced-motion: no-preference)': {
+          '.amber-leaf': {
+            transformOrigin: '0 0',
+            animation: 'amber-leaf-sway var(--sway, 6s) ease-in-out var(--sway-delay, 0s) infinite alternate',
+          },
+        },
         // People who turn off motion in system settings get a still page.
         '@media (prefers-reduced-motion: reduce)': {
           '*, *::before, *::after': {
