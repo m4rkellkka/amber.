@@ -2,7 +2,7 @@ import { Link as RouterLink } from 'react-router'
 import { Alert, Box, Button, Skeleton, Typography } from '@mui/material'
 import { currentMonth, formatUsd } from '../api/format'
 import type { Product } from '../api/types'
-import { fonts, tokens } from '../theme/theme'
+import { softSerif, tokens } from '../theme/theme'
 import { BeadRow } from './BeadRow'
 import { Eyebrow } from './RecentWork'
 
@@ -33,7 +33,7 @@ export function PackagesTable({ packages, loading, error, onRetry }: Props) {
         </Alert>
       )}
 
-      <Box sx={{ borderTop: `1px solid ${tokens.ink}` }}>
+      <Box sx={{ borderTop: `3px double ${tokens.ink}` }}>
         {loading && Array.from({ length: 5 }, (_, i) => (
           <Box key={i} sx={{ py: 2.5, borderBottom: 1, borderColor: 'divider' }}><Skeleton height={28} /></Box>
         ))}
@@ -44,10 +44,11 @@ export function PackagesTable({ packages, loading, error, onRetry }: Props) {
                  gridTemplateColumns: { xs: '1fr auto', ...columns },
                  py: 2.5, px: { md: 1 }, borderBottom: 1, borderColor: 'divider',
                  color: 'inherit', textDecoration: 'none', transition: 'background-color .15s',
-                 '&:hover': { bgcolor: 'rgba(230, 235, 216, 0.6)' },
+                 '&:hover': { bgcolor: 'rgba(241, 217, 160, 0.32)' },
+                 '&:hover .pkg-name': { color: tokens.terracotta },
                  '&:focus-visible': { outline: `2px solid ${tokens.amber}`, outlineOffset: 2 },
                }}>
-            <Typography sx={{ fontFamily: fonts.display, fontWeight: 600, fontSize: 19, letterSpacing: '-0.01em' }}>
+            <Typography className="pkg-name" sx={{ ...softSerif, fontWeight: 560, fontSize: 21, letterSpacing: '-0.01em', transition: 'color .15s' }}>
               {p.name}
             </Typography>
             <Typography variant="body2" color="text.secondary"
@@ -62,7 +63,7 @@ export function PackagesTable({ packages, loading, error, onRetry }: Props) {
               <BeadRow stock={p.stock} />
             </Box>
             <Typography sx={{
-              fontFamily: fonts.display, fontWeight: 700, fontSize: 20, textAlign: 'right',
+              ...softSerif, fontWeight: 600, fontSize: 22, textAlign: 'right', fontVariantNumeric: 'oldstyle-nums',
               gridColumn: { xs: 2, md: 'auto' }, gridRow: { xs: 1, md: 'auto' },
             }}>
               {formatUsd(p.price)}
