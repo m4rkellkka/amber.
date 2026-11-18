@@ -1,12 +1,11 @@
 import { useState } from 'react'
-import { Link as RouterLink, useLocation, useNavigate } from 'react-router'
+import { Link as RouterLink, useNavigate } from 'react-router'
 import { Avatar, Box, Button, Container, Divider, Link, ListItemText, Menu, MenuItem, Stack, Typography } from '@mui/material'
 import { useAuth } from '../auth/AuthContext'
 import { useCart } from '../cart/CartContext'
 import { fonts } from '../theme/theme'
 import { Bead } from './Bead'
 import { IstanbulClock } from './IstanbulClock'
-import { HangingVine } from './nature/decorations'
 
 const navLinks = [
   { label: 'Work', to: '/#work' },
@@ -73,18 +72,8 @@ function GuestMenu() {
 export function Header() {
   const { user, loading } = useAuth()
   const { packageId } = useCart()
-  const { pathname } = useLocation()
   return (
     <Box component="header" sx={{ position: 'relative', borderBottom: 1, borderColor: 'divider' }}>
-      {!pathname.startsWith('/admin') && (
-        // Hangs into the empty right margin, so it only shows when that margin is wide enough.
-        <HangingVine sx={{
-          position: 'absolute', top: 0, right: { xs: 4, xl: 28 }, zIndex: 1,
-          display: 'none', width: 96, height: 236,
-          '@media (min-width: 1400px)': { display: 'block' },
-          '@media (min-width: 1520px)': { width: 128, height: 314 },
-        }} />
-      )}
       <Container maxWidth="lg" sx={{ height: 72, display: 'flex', alignItems: 'center', gap: 3 }}>
         <Link component={RouterLink} to="/" underline="none" color="inherit"
               sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

@@ -1,14 +1,18 @@
 import { Box } from '@mui/material'
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 import { SignInDialog } from '../auth/SignInDialog'
 import { Footer } from './Footer'
 import { Header } from './Header'
+import { EdgeLianas } from './nature/decorations'
 import { ScrollToHash } from './ScrollToHash'
 
 /** Frame for every page: header, page content, footer, and the sign-in dialog. */
 export function Layout() {
+  // The admin panel is a work tool: no plants there.
+  const plants = !useLocation().pathname.startsWith('/admin')
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'clip' }}>
+    <Box sx={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflow: 'clip' }}>
+      {plants && <EdgeLianas />}
       <ScrollToHash />
       <Box component="a" href="#main"
            sx={{

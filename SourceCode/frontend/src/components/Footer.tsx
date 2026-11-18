@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router'
 import { Box, Container, Typography } from '@mui/material'
-import { fonts, tokens } from '../theme/theme'
-import { FooterClump } from './nature/decorations'
+import { softSerif, tokens } from '../theme/theme'
+import { FooterUndergrowth } from './nature/decorations'
 
 /** Wavy top edge of the footer band. */
 function Wave() {
@@ -17,14 +17,10 @@ export function Footer() {
   // The admin panel is a work tool: it keeps the colors but gets no plants.
   const plants = !useLocation().pathname.startsWith('/admin')
   return (
-    <Box component="footer" sx={{ position: 'relative', mt: plants ? { xs: 24, md: 27 } : 10, bgcolor: tokens.forest, color: tokens.paper }}>
+    <Box component="footer" sx={{ position: 'relative', zIndex: 2, mt: plants ? { xs: 16, md: 20 } : 10, bgcolor: tokens.forest, color: tokens.paper }}>
       <Wave />
       {plants && (
-        <>
-          <FooterClump height={150} sx={{ position: 'absolute', bottom: 'calc(100% + 4px)', left: { xs: '4%', md: '7%' } }} />
-          <FooterClump height={108} flip
-                       sx={{ position: 'absolute', bottom: 'calc(100% + 10px)', right: '9%', display: { xs: 'none', sm: 'block' } }} />
-        </>
+        <FooterUndergrowth sx={{ position: 'absolute', left: 0, bottom: { xs: 'calc(100% - 14px)', md: 'calc(100% - 22px)' } }} />
       )}
       <Container maxWidth="lg">
         <Box sx={{
@@ -32,7 +28,7 @@ export function Footer() {
           display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'baseline', justifyContent: 'space-between',
         }}>
           <Typography variant="body2" sx={{ color: 'rgba(251, 246, 236, 0.78)' }}>amber — Mikhail, Istanbul</Typography>
-          <Typography sx={{ fontFamily: fonts.hand, fontSize: 22, lineHeight: 1.2, color: tokens.sage }}>
+          <Typography sx={{ ...softSerif, fontStyle: 'italic', fontSize: 18, lineHeight: 1.2, color: tokens.sage }}>
             made slowly, with plants nearby
           </Typography>
         </Box>

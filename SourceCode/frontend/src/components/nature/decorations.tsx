@@ -1,114 +1,110 @@
 import { useEffect, useRef, useState } from 'react'
 import { Box, type SxProps, type Theme } from '@mui/material'
 import { keyframes } from '@mui/material/styles'
-import { LeafShape, Vine, type StemSpec } from './Vine'
+import { dryLeaf, greens, grow, rng, sunlitGreens, type Grown } from './growth'
+import { LeafShape, Vine } from './Vine'
 
 /** Shared props of every decoration: purely visual, ignored by screen readers and the mouse. */
 const decor = { 'aria-hidden': true, focusable: 'false' } as const
 const base = { display: 'block', pointerEvents: 'none', overflow: 'visible' } as const
+const extra = (sx?: SxProps<Theme>) => (Array.isArray(sx) ? sx : [sx])
 
 const sway = keyframes`
-  from { transform: rotate(-1.6deg); }
-  to   { transform: rotate(1.6deg); }
+  from { transform: rotate(-0.9deg); }
+  to   { transform: rotate(0.9deg); }
 `
-
-/* ---------- hanging vine (header) ---------- */
-
-const hanging: StemSpec[] = [
-  {
-    width: 1.4, leafScale: 1.35,
-    segs: [
-      [[62, -2], [74, 26], [84, 50], [77, 88]],
-      [[77, 88], [71, 118], [86, 132], [82, 152]],
-    ],
-    leaves: [
-      { s: 0, t: 0.35, side: -1, size: 0.8, tone: 2 },
-      { s: 0, t: 0.7, side: 1, size: 0.75, tone: 1 },
-      { s: 1, t: 0.25, side: -1, size: 0.65, tone: 2, tilt: 10 },
-      { s: 1, t: 0.7, side: 1, size: 0.55, tone: 1 },
-    ],
-    curls: [{ s: 1, t: 1, rot: 70, size: 0.9 }],
+const swaying = {
+  transformOrigin: '50% 0',
+  '@media (prefers-reduced-motion: no-preference)': {
+    animation: `${sway} 9s ease-in-out infinite alternate`,
   },
-  {
-    width: 2.2, leafScale: 1.4,
-    segs: [
-      [[56, -2], [52, 30], [66, 52], [60, 84]],
-      [[60, 84], [54, 116], [42, 140], [50, 172]],
-      [[50, 172], [58, 204], [66, 228], [57, 262]],
-    ],
-    leaves: [
-      { s: 0, t: 0.18, side: 1, size: 1.15, tone: 0 },
-      { s: 0, t: 0.45, side: -1, size: 1.25, tone: 1, tilt: -8 },
-      { s: 0, t: 0.8, side: 1, size: 1.1, tone: 0, tilt: 6 },
-      { s: 1, t: 0.15, side: -1, size: 1.2, tone: 0 },
-      { s: 1, t: 0.45, side: 1, size: 1.0, tone: 2, tilt: -10 },
-      { s: 1, t: 0.75, side: -1, size: 1.05, tone: 1 },
-      { s: 2, t: 0.1, side: 1, size: 0.95, tone: 0 },
-      { s: 2, t: 0.4, side: -1, size: 0.85, tone: 1, tilt: 8 },
-      { s: 2, t: 0.68, side: 1, size: 0.7, tone: 2 },
-      { s: 2, t: 0.9, side: -1, size: 0.55, tone: 1 },
-      { s: 2, t: 1, side: 0, size: 0.5, tone: 1 },
-    ],
-    berries: [
-      { s: 1, t: 0.55, dx: -9, dy: 4, r: 3.4 },
-      { s: 1, t: 0.6, dx: -4, dy: 9, r: 2.8 },
-      { s: 2, t: 0.25, dx: 8, dy: 2, r: 2.6 },
-    ],
-    curls: [{ s: 1, t: 0.95, rot: 160, size: 1 }],
-  },
+} as const
+
+/* ---------- lianas hanging down the page edges ---------- */
+
+const hangingLeaves = { bendTo: 90, bendAmount: 0.45, berryChance: 0.04, tendrilChance: 0.07 } as const
+
+const rightLiana: Grown[] = [
+  grow({
+    ...hangingLeaves, seed: 11, start: [96, -6], angle: 90, length: 1040, width: [4.2, 0.9], leafSize: [1.45, 0.75],
+    branches: [{ at: 0.1, turn: -38, length: 240 }, { at: 0.34, turn: 34, length: 330 }, { at: 0.62, turn: -30, length: 210 }],
+  }),
+  grow({ ...hangingLeaves, seed: 23, start: [58, -6], angle: 92, length: 520, width: [2.6, 0.7], leafSize: [1.1, 0.6], berryChance: 0 }),
+]
+
+const leftLiana: Grown[] = [
+  grow({
+    ...hangingLeaves, seed: 37, start: [64, -6], angle: 88, length: 660, width: [3.6, 0.8], leafSize: [1.35, 0.7],
+    branches: [{ at: 0.22, turn: 36, length: 220 }, { at: 0.55, turn: -30, length: 160 }],
+  }),
+  grow({ ...hangingLeaves, seed: 41, start: [104, -6], angle: 90, length: 300, width: [2.2, 0.7], leafSize: [1, 0.6], berryChance: 0 }),
 ]
 
 /**
- * A vine hanging from the top of the page into the right-hand margin.
- * Only shown on wide screens, where that margin is empty; sways slowly.
+ * Long lianas hanging from the top of the page into the empty side margins.
+ * They are anchored to the content column, so on narrower screens they slide out of view on their own.
  */
-export function HangingVine({ sx }: { sx?: SxProps<Theme> }) {
+export function EdgeLianas() {
+  const shared = { ...base, position: 'absolute', top: 0, width: 160, zIndex: 1, display: { xs: 'none', lg: 'block' }, ...swaying } as const
   return (
-    <Box component="svg" viewBox="0 0 110 270" {...decor}
+    <>
+      <Box component="svg" viewBox="0 0 160 1100" {...decor}
+           sx={{ ...shared, height: 1100, right: 'calc(50% - 744px)' }}>
+        <Vine vines={rightLiana} />
+      </Box>
+      <Box component="svg" viewBox="0 0 160 700" {...decor}
+           sx={{ ...shared, height: 700, left: 'calc(50% - 744px)', animationDelay: '-4s' }}>
+        <Vine vines={leftLiana} />
+      </Box>
+    </>
+  )
+}
+
+/* ---------- ivy creeping over a card corner ---------- */
+
+const ivyLeaves = { kinds: ['ivy', 'ivy', 'ivy', 'pothos'], tendrilChance: 0.12, swayChance: 0.25 } as const
+
+/** Seeded ivy that starts at the top-right corner (150, 20) and creeps left and down. */
+function cornerIvy(seed: number): Grown[] {
+  return [
+    grow({ ...ivyLeaves, seed, start: [150, 20], angle: 182, length: 130, step: 12, wander: 12, pull: 0.3, width: [2.4, 0.6], leafSize: [1, 0.55], berryChance: 0.08 }),
+    grow({ ...ivyLeaves, seed: seed + 1, start: [150, 20], angle: 94, length: 96, step: 12, wander: 12, pull: 0.3, width: [2.2, 0.6], leafSize: [0.95, 0.5] }),
+    grow({ ...ivyLeaves, seed: seed + 2, start: [150, 20], angle: 140, length: 46, step: 10, wander: 10, width: [1.8, 0.6], leafSize: [0.9, 0.55], leafChance: 1 }),
+  ]
+}
+const ivies = { slots: cornerIvy(101), work: cornerIvy(211), page: cornerIvy(307) } as const
+
+/**
+ * Ivy holding on to a card corner. Place it in a `position: relative` parent; it overlaps the corner.
+ * `corner="tl"` mirrors it to the top-left.
+ */
+export function CornerIvy({ variant = 'slots', corner = 'tr', scale = 1, sx }: {
+  variant?: keyof typeof ivies
+  corner?: 'tl' | 'tr'
+  scale?: number
+  sx?: SxProps<Theme>
+}) {
+  const size = 170 * scale
+  const offset = -20 * scale
+  return (
+    <Box component="svg" viewBox="0 0 170 170" {...decor}
          sx={[{
-           ...base, width: 128, height: 314, transformOrigin: '50% 0',
-           '@media (prefers-reduced-motion: no-preference)': {
-             animation: `${sway} 8s ease-in-out infinite alternate`,
-           },
-         }, ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Vine stems={hanging} />
+           ...base, position: 'absolute', zIndex: 2, width: size, height: size, top: offset,
+           ...(corner === 'tr' ? { right: offset } : { left: offset, transform: 'scaleX(-1)' }),
+         }, ...extra(sx)]}>
+      <Vine vines={ivies[variant]} />
     </Box>
   )
 }
 
 /* ---------- section divider ---------- */
 
-const divider: StemSpec[] = [
-  {
-    width: 2, leafScale: 1.7,
-    segs: [
-      [[8, 30], [60, 14], [110, 44], [170, 30]],
-      [[170, 30], [230, 16], [270, 42], [320, 28]],
-      [[320, 28], [370, 16], [420, 42], [480, 30]],
-      [[480, 30], [540, 18], [590, 40], [632, 26]],
-    ],
-    leaves: [
-      { s: 0, t: 0.3, side: -1, size: 0.75, tone: 2 },
-      { s: 0, t: 0.62, side: 1, size: 0.9, tone: 1 },
-      { s: 1, t: 0.05, side: -1, size: 1.0, tone: 0 },
-      { s: 1, t: 0.45, side: 1, size: 0.95, tone: 0, tilt: -6 },
-      { s: 1, t: 0.8, side: -1, size: 0.8, tone: 2 },
-      { s: 2, t: 0.2, side: 1, size: 1.05, tone: 1 },
-      { s: 2, t: 0.55, side: -1, size: 0.9, tone: 0, tilt: 8 },
-      { s: 2, t: 0.9, side: 1, size: 0.8, tone: 2 },
-      { s: 3, t: 0.3, side: -1, size: 0.75, tone: 1 },
-      { s: 3, t: 0.65, side: 1, size: 0.6, tone: 0 },
-      { s: 3, t: 1, side: 0, size: 0.5, tone: 1 },
-    ],
-    berries: [
-      { s: 1, t: 0.62, dx: 2, dy: -9, r: 3.2 },
-      { s: 1, t: 0.7, dx: 8, dy: -5, r: 2.6 },
-    ],
-    curls: [
-      { s: 0, t: 0.05, rot: 150, size: 0.9 },
-      { s: 2, t: 0.7, rot: -40, size: 0.8 },
-    ],
-  },
+const divider: Grown[] = [
+  grow({
+    seed: 503, start: [8, 30], angle: 0, length: 620, step: 16, wander: 9, pull: 0.22, width: [2.6, 0.8],
+    leafSize: [1.05, 0.65], leafChance: 0.75, berryChance: 0.05, tendrilChance: 0.08, swayChance: 0.2,
+    branches: [{ at: 0.3, turn: -30, length: 60 }, { at: 0.7, turn: 28, length: 50 }],
+  }),
 ]
 
 function prefersStill(): boolean {
@@ -117,7 +113,7 @@ function prefersStill(): boolean {
     || window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-/** A thin vine between sections. It grows once, the first time it scrolls into view. */
+/** A vine between sections. It grows once, the first time it scrolls into view. */
 export function VineDivider({ sx }: { sx?: SxProps<Theme> }) {
   const ref = useRef<SVGSVGElement>(null)
   const [grown, setGrown] = useState(prefersStill)
@@ -130,121 +126,102 @@ export function VineDivider({ sx }: { sx?: SxProps<Theme> }) {
         setGrown(true)
         io.disconnect()
       }
-    }, { threshold: 0.6 })
+    }, { threshold: 0.5 })
     io.observe(el)
     return () => io.disconnect()
   }, [grown])
 
   return (
-    <Box ref={ref} component="svg" viewBox="0 0 640 56" {...decor}
-         sx={[{ ...base, width: '100%', maxWidth: 640, height: 'auto', mx: 'auto' }, ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Vine stems={divider} grown={grown} />
+    <Box ref={ref} component="svg" viewBox="0 0 640 60" {...decor}
+         sx={[{ ...base, width: '100%', maxWidth: 640, height: 'auto', mx: 'auto' }, ...extra(sx)]}>
+      <Vine vines={divider} grown={grown} />
     </Box>
   )
 }
 
-/* ---------- small sprig (card corners, empty states) ---------- */
+/* ---------- small sprig (empty states) ---------- */
 
-const sprig: StemSpec[] = [
-  {
-    width: 1.7, leafScale: 1.25,
-    segs: [[[8, 76], [20, 58], [34, 42], [62, 16]]],
-    leaves: [
-      { s: 0, t: 0.22, side: 1, size: 0.95, tone: 2 },
-      { s: 0, t: 0.38, side: -1, size: 1.1, tone: 0 },
-      { s: 0, t: 0.58, side: 1, size: 1.05, tone: 1 },
-      { s: 0, t: 0.76, side: -1, size: 0.9, tone: 0, tilt: 6 },
-      { s: 0, t: 1, side: 0, size: 0.8, tone: 1 },
-    ],
-    berries: [{ s: 0, t: 0.45, dx: 7, dy: 5, r: 2.8 }],
-  },
+const sprig: Grown[] = [
+  grow({ seed: 601, start: [16, 76], angle: -58, length: 74, step: 9, wander: 10, pull: 0.2, width: [2, 0.6], leafSize: [1, 0.65], leafChance: 0.9, berryChance: 0.1 }),
 ]
 
-/** A short sprig with five leaves; flip it to point the other way. */
+/** A short sprig; flip it to point the other way. */
 export function LeafSprig({ size = 72, flip = false, sx }: { size?: number; flip?: boolean; sx?: SxProps<Theme> }) {
   return (
     <Box component="svg" viewBox="0 0 80 80" {...decor}
-         sx={[{ ...base, width: size, height: size, transform: flip ? 'scaleX(-1)' : undefined },
-           ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Vine stems={sprig} />
+         sx={[{ ...base, width: size, height: size, transform: flip ? 'scaleX(-1)' : undefined }, ...extra(sx)]}>
+      <Vine vines={sprig} />
     </Box>
   )
 }
 
-/* ---------- vines rising from the footer ---------- */
+/* ---------- undergrowth along the top of the footer ---------- */
 
-const clump: StemSpec[] = [
-  {
-    width: 1.6, leafScale: 1.35,
-    segs: [[[58, 112], [44, 98], [30, 88], [20, 66]]],
-    leaves: [
-      { s: 0, t: 0.35, side: 1, size: 0.85, tone: 2 },
-      { s: 0, t: 0.65, side: -1, size: 0.8, tone: 1 },
-      { s: 0, t: 1, side: 0, size: 0.6, tone: 2 },
-    ],
-  },
-  {
-    width: 1.6, leafScale: 1.35,
-    segs: [[[62, 112], [70, 90], [84, 76], [94, 50]]],
-    leaves: [
-      { s: 0, t: 0.3, side: -1, size: 0.9, tone: 1 },
-      { s: 0, t: 0.62, side: 1, size: 0.85, tone: 0 },
-      { s: 0, t: 1, side: 0, size: 0.65, tone: 1 },
-    ],
-    curls: [{ s: 0, t: 0.85, rot: -120, size: 0.8 }],
-  },
-  {
-    width: 2.1, leafScale: 1.4,
-    segs: [[[60, 112], [52, 84], [66, 62], [54, 34]], [[54, 34], [48, 20], [52, 10], [58, 2]]],
-    leaves: [
-      { s: 0, t: 0.25, side: -1, size: 1.1, tone: 0 },
-      { s: 0, t: 0.5, side: 1, size: 1.15, tone: 1 },
-      { s: 0, t: 0.78, side: -1, size: 1.0, tone: 0 },
-      { s: 1, t: 0.3, side: 1, size: 0.8, tone: 2 },
-      { s: 1, t: 1, side: 0, size: 0.6, tone: 1 },
-    ],
-    berries: [{ s: 0, t: 0.55, dx: -8, dy: -2, r: 3 }],
-  },
-]
+/**
+ * Clumps of different size with uneven gaps between them, plus low runners creeping
+ * sideways along the ground, so the edge reads as a hedge rather than a row of seedlings.
+ */
+function undergrowth(): Grown[] {
+  const r = rng(900)
+  const out: Grown[] = []
+  let seed = 901
+  let x = 20 + r() * 40
+  while (x < 1440) {
+    const big = r() < 0.3
+    const shoots = big ? 5 + Math.floor(r() * 3) : 2 + Math.floor(r() * 3)
+    const tallest = big ? 110 + r() * 40 : 40 + r() * 40
+    for (let k = 0; k < shoots; k++) {
+      const spread = (k / Math.max(1, shoots - 1) - 0.5) * (big ? 90 : 60)
+      const len = tallest * (k === Math.floor(shoots / 2) ? 1 : 0.35 + r() * 0.5)
+      out.push(grow({
+        seed: seed++, start: [x + (r() - 0.5) * 18, 146], angle: -90 + spread + (r() - 0.5) * 16, length: len,
+        step: 9, wander: 12, pull: 0.12, width: [len > 80 ? 2.8 : 1.9, 0.6], leafSize: [len > 80 ? 1.25 : 1, 0.6],
+        leafChance: 0.85, palette: r() < 0.6 ? greens : sunlitGreens, bendTo: -90, bendAmount: 0.2,
+        berryChance: big ? 0.04 : 0, tendrilChance: 0.06, swayChance: 0.2,
+        branches: len > 90 ? [{ at: 0.35, turn: spread < 0 ? -38 : 38, length: len * 0.4 }] : undefined,
+      }))
+    }
+    // A runner creeping along the ground toward the next clump.
+    if (r() < 0.55) {
+      const dir = r() < 0.5 ? -1 : 1
+      out.push(grow({
+        seed: seed++, start: [x, 146], angle: dir > 0 ? -14 : 194, length: 70 + r() * 90, step: 10, wander: 8, pull: 0.3,
+        width: [1.8, 0.6], leafSize: [0.9, 0.55], leafChance: 0.9, bendTo: -90, bendAmount: 0.55, kinds: ['ivy', 'ivy', 'pothos'],
+      }))
+    }
+    x += (big ? 120 : 60) + r() * 110
+  }
+  return out
+}
+const footerPlants = undergrowth()
 
-/** A clump of stems growing up out of the footer band. */
-export function FooterClump({ height = 110, flip = false, sx }: { height?: number; flip?: boolean; sx?: SxProps<Theme> }) {
+/** Leaves growing up out of the footer band; stretches across the full width. */
+export function FooterUndergrowth({ sx }: { sx?: SxProps<Theme> }) {
   return (
-    <Box component="svg" viewBox="0 0 120 112" {...decor}
-         sx={[{ ...base, height, width: (height * 120) / 112, transform: flip ? 'scaleX(-1)' : undefined },
-           ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Vine stems={clump} />
+    <Box component="svg" viewBox="0 0 1440 150" preserveAspectRatio="xMidYMax slice" {...decor}
+         sx={[{ ...base, overflow: 'hidden', width: '100%', height: { xs: 96, md: 150 } }, ...extra(sx)]}>
+      <Vine vines={footerPlants} />
     </Box>
   )
 }
 
 /* ---------- drooping vine (404) ---------- */
 
-const drooping: StemSpec[] = [
-  {
-    width: 2, leafScale: 1.3,
-    segs: [
-      [[60, -2], [60, 40], [72, 70], [58, 100]],
-      [[58, 100], [46, 126], [40, 150], [50, 168]],
-    ],
-    leaves: [
-      { s: 0, t: 0.2, side: 1, size: 1.1, tone: 0 },
-      { s: 0, t: 0.5, side: -1, size: 1.15, tone: 1 },
-      { s: 0, t: 0.85, side: 1, size: 1.0, tone: 2 },
-      { s: 1, t: 0.3, side: -1, size: 0.9, tone: 1, tilt: 20 },
-      { s: 1, t: 0.7, side: 1, size: 0.85, tone: 3, tilt: 35 },
-    ],
-    curls: [{ s: 1, t: 1, rot: 100, size: 0.9 }],
-  },
+const drooping: Grown[] = [
+  grow({
+    seed: 707, start: [60, -2], angle: 90, length: 180, step: 13, wander: 18, pull: 0.1, width: [3, 0.8],
+    leafSize: [1.2, 0.8], bendTo: 100, bendAmount: 0.7, leafChance: 0.7,
+    palette: ['#5A7F3E', '#6F8F4E', '#8A9A3C', '#A3B574', dryLeaf, dryLeaf], tendrilChance: 0.15,
+  }),
 ]
 
-/** A tired vine with one dry leaf and one that already fell. For the "page not found" screen. */
+/** A tired vine with dry leaves and one that already fell. For the "page not found" screen. */
 export function DroopingVine({ sx }: { sx?: SxProps<Theme> }) {
   return (
-    <Box component="svg" viewBox="0 0 120 220" {...decor}
-         sx={[{ ...base, width: 120, height: 220 }, ...(Array.isArray(sx) ? sx : [sx])]}>
-      <Vine stems={drooping} />
-      <g transform="translate(70 208) rotate(-14) scale(0.95)"><LeafShape tone={3} /></g>
+    <Box component="svg" viewBox="0 0 120 230" {...decor}
+         sx={[{ ...base, width: 120, height: 230 }, ...extra(sx)]}>
+      <Vine vines={drooping} />
+      <g transform="translate(74 220) rotate(-14) scale(0.95)"><LeafShape kind="pothos" fill={dryLeaf} /></g>
     </Box>
   )
 }
@@ -256,7 +233,7 @@ export function LeafBullet({ size = 14 }: { size?: number }) {
   return (
     <Box component="svg" viewBox="-2 -12 28 24" {...decor}
          sx={{ ...base, width: size, height: size, flexShrink: 0, transform: 'rotate(-35deg)' }}>
-      <LeafShape tone={0} />
+      <LeafShape kind="pothos" />
     </Box>
   )
 }
